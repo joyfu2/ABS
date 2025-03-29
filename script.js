@@ -25,19 +25,19 @@ window.initializeMap = async function() {
                 zoom: 13
             });
 
-            // Add user marker using AdvancedMarkerElement
-            const userMarkerView = new google.maps.marker.PinView({
-                background: '#4285F4',
-                borderColor: '#ffffff',
-                glyph: '',
-                scale: 1.2
-            });
-
-            userMarker = new google.maps.marker.AdvancedMarkerElement({
-                map,
+            // Add user marker
+            userMarker = new google.maps.Marker({
                 position: userLocation,
+                map: map,
                 title: 'Your Location',
-                content: userMarkerView.element
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: '#4285F4',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                }
             });
 
             // Search for coffee shops
@@ -125,19 +125,12 @@ function getPlaceDetails(placeId) {
                 const priceLevel = place.price_level || 1;
                 const priceSigns = '$'.repeat(priceLevel);
                 
-                // Create marker using AdvancedMarkerElement
-                const markerView = new google.maps.marker.PinView({
-                    background: '#FF5722',
-                    borderColor: '#ffffff',
-                    glyph: '',
-                    scale: 1.2
-                });
-
-                const marker = new google.maps.marker.AdvancedMarkerElement({
-                    map,
+                // Create marker
+                const marker = new google.maps.Marker({
                     position: place.geometry.location,
+                    map: map,
                     title: place.name,
-                    content: markerView.element
+                    animation: google.maps.Animation.DROP
                 });
 
                 // Create info window content
