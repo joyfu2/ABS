@@ -61,11 +61,16 @@ function searchCoffeeShops(location) {
 
     service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log('Found coffee shops:', results.length);
             results.forEach(place => {
-                if (place.name.toLowerCase().includes('coffee')) {
+                if (place.name.toLowerCase().includes('coffee') || 
+                    place.types.includes('cafe') || 
+                    place.vicinity.toLowerCase().includes('coffee')) {
                     getPlaceDetails(place.place_id);
                 }
             });
+        } else {
+            console.error('Places search failed:', status);
         }
     });
 }
@@ -76,7 +81,7 @@ function getPlaceDetails(placeId) {
     
     service.getDetails({
         placeId: placeId,
-        fields: ['name', 'rating', 'price_level', 'website', 'geometry', 'opening_hours']
+        fields: ['name', 'rating', 'price_level', 'website', 'geometry', 'opening_hours', 'formatted_address']
     }, (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             // Calculate estimated pickup time (random for demo)
@@ -90,7 +95,8 @@ function getPlaceDetails(placeId) {
             const marker = new google.maps.Marker({
                 position: place.geometry.location,
                 map: map,
-                title: place.name
+                title: place.name,
+                animation: google.maps.Animation.DROP
             });
 
             // Create info window content
@@ -99,6 +105,7 @@ function getPlaceDetails(placeId) {
                     <h3>${place.name}</h3>
                     <div class="time">${estimatedTime} min pickup</div>
                     <div class="price">${priceSigns}</div>
+                    <div class="address">${place.formatted_address}</div>
                     ${place.website ? `<a href="${place.website}" class="order-link" target="_blank">Order Ahead</a>` : ''}
                 </div>
             `;
@@ -117,6 +124,8 @@ function getPlaceDetails(placeId) {
                 infoWindow: infoWindow,
                 place: place
             });
+        } else {
+            console.error('Place details failed:', status);
         }
     });
 }
