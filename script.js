@@ -17,6 +17,8 @@ window.initializeMap = async function() {
                 lng: position.coords.longitude
             };
 
+            console.log('User location:', userLocation);
+
             // Create map centered on user's location
             map = new google.maps.Map(document.getElementById('map'), {
                 center: userLocation,
@@ -52,22 +54,31 @@ window.initializeMap = async function() {
 // Search for coffee shops using Google Places API
 async function searchCoffeeShops(location) {
     try {
+        console.log('Starting coffee shop search...');
         const service = new google.maps.places.PlacesService(map);
         
         const request = {
             location: location,
             query: 'coffee shop',
-            type: ['cafe']
+            type: ['cafe'],
+            radius: RADIUS
         };
 
+        console.log('Search request:', request);
+
         return new Promise((resolve, reject) => {
-            service.textSearch(request, (results, status) => {
+            service.nearbySearch(request, (results, status) => {
+                console.log('Search status:', status);
+                console.log('Search results:', results);
+
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     console.log('Found coffee shops:', results.length);
                     results.forEach(place => {
+                        console.log('Processing place:', place.name);
                         if (place.name.toLowerCase().includes('coffee') || 
                             place.types.includes('cafe') || 
                             (place.vicinity && place.vicinity.toLowerCase().includes('coffee'))) {
+                            console.log('Found coffee shop:', place.name);
                             getPlaceDetails(place.place_id);
                         }
                     });
@@ -96,12 +107,16 @@ async function searchCoffeeShops(location) {
 // Get detailed information about each coffee shop
 function getPlaceDetails(placeId) {
     try {
+        console.log('Getting details for place:', placeId);
         const service = new google.maps.places.PlacesService(map);
         
         service.getDetails({
             placeId: placeId,
             fields: ['name', 'rating', 'price_level', 'website', 'geometry', 'opening_hours', 'formatted_address']
         }, (place, status) => {
+            console.log('Place details status:', status);
+            console.log('Place details:', place);
+
             if (status === google.maps.places.PlacesServiceStatus.OK) {
                 // Calculate estimated pickup time (random for demo)
                 const estimatedTime = Math.floor(Math.random() * 15) + 5;
@@ -150,6 +165,8 @@ function getPlaceDetails(placeId) {
                     infoWindow: infoWindow,
                     place: place
                 });
+
+                console.log('Added marker for:', place.name);
             } else {
                 console.error('Place details failed:', status);
             }
