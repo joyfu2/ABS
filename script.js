@@ -1,7 +1,7 @@
 let map;
 let userMarker;
 let coffeeShops = [];
-const RADIUS = 3219; // 2 miles in meters
+const RADIUS = 5000; // 5km radius
 
 // Initialize the map
 window.initializeMap = async function() {
@@ -61,14 +61,14 @@ async function searchCoffeeShops(location) {
         // Create a search request
         const request = {
             location: location,
-            query: 'coffee shop',
+            radius: RADIUS,
             type: ['cafe']
         };
 
         console.log('Search request:', request);
 
         // Perform the search
-        service.textSearch(request, (results, status) => {
+        service.nearbySearch(request, (results, status) => {
             console.log('Search status:', status);
             
             if (status === google.maps.places.PlacesServiceStatus.OK) {
