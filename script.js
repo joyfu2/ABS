@@ -26,12 +26,12 @@ window.initializeMap = async function() {
                 map: map,
                 title: 'Your Location',
                 icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    fillColor: '#4285F4',
-                    fillOpacity: 1,
-                    strokeColor: '#ffffff',
-                    strokeWeight: 2
+                    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+                            <circle cx="10" cy="10" r="8" fill="#4285F4" stroke="white" stroke-width="2"/>
+                        </svg>
+                    `),
+                    scaledSize: new google.maps.Size(20, 20)
                 }
             });
         } catch (error) {
