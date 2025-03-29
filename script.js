@@ -4,7 +4,7 @@ let coffeeShops = [];
 const RADIUS = 8047; // 5 miles in meters
 
 // Initialize the map
-async function initMap() {
+window.initializeMap = async function() {
     // Get user's location
     if (navigator.geolocation) {
         try {
@@ -47,7 +47,7 @@ async function initMap() {
     } else {
         alert('Geolocation is not supported by your browser');
     }
-}
+};
 
 // Search for coffee shops using Google Places API
 async function searchCoffeeShops(location) {

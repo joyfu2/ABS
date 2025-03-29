@@ -5,18 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee Shop Finder</title>
     <link rel="stylesheet" href="styles.css">
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,geometry&callback=initMap">
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Coffee Shop Finder</h1>
-        <div id="map"></div>
-        <div id="info-panel">
-            <p>Click on any coffee shop marker to view details and order ahead.</p>
-        </div>
+        <header>
+            <h1>Coffee Shop Finder</h1>
+            <p>Find nearby coffee shops and order ahead</p>
+        </header>
+        <main>
+            <div id="map"></div>
+        </main>
     </div>
+
+    <script>
+        // Initialize map function
+        function initMap() {
+            // This function will be called by the Google Maps API
+            window.initializeMap();
+        }
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,geometry&callback=initMap">
+    </script>
     <script src="script.js"></script>
 </body>
 </html> 
