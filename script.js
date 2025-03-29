@@ -55,56 +55,52 @@ async function searchCoffeeShops(location) {
     try {
         console.log('Starting coffee shop search...');
         
-        // Create a PlacesService instance
-        const service = new google.maps.places.PlacesService(map);
-        
         // Create a search request
         const request = {
             location: location,
-            query: 'coffee shop',
+            radius: RADIUS,
             type: ['cafe']
         };
 
         console.log('Search request:', request);
 
-        // Perform the search
-        service.textSearch(request, (results, status) => {
-            console.log('Search status:', status);
+        // Perform the search using the new Place API
+        const places = await google.maps.places.Place.search(request);
+        console.log('Search status:', places.status);
+        
+        if (places.status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log('Found places:', places.results.length);
             
-            if (status === google.maps.places.PlacesServiceStatus.OK) {
-                console.log('Found places:', results.length);
-                
-                // Filter and add markers for coffee shops
-                results.forEach(place => {
-                    console.log('Checking place:', place.name);
-                    if (place.name.toLowerCase().includes('coffee') || 
-                        place.types.includes('cafe')) {
-                        console.log('Adding coffee shop:', place.name);
-                        addCoffeeShopMarker(place);
-                    }
-                });
-            } else {
-                console.error('Places search failed:', status);
-                let errorMessage = 'Error searching for coffee shops. ';
-                
-                switch(status) {
-                    case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
-                        errorMessage += 'Too many requests. Please try again later.';
-                        break;
-                    case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
-                        errorMessage += 'Request denied. Please check your API key and billing status.';
-                        break;
-                    case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
-                        errorMessage += 'Invalid request. Please try again.';
-                        break;
-                    default:
-                        errorMessage += 'Please try again later.';
+            // Filter and add markers for coffee shops
+            places.results.forEach(place => {
+                console.log('Checking place:', place.name);
+                if (place.name.toLowerCase().includes('coffee') || 
+                    place.types.includes('cafe')) {
+                    console.log('Adding coffee shop:', place.name);
+                    addCoffeeShopMarker(place);
                 }
-                
-                console.error(errorMessage);
-                alert(errorMessage);
+            });
+        } else {
+            console.error('Places search failed:', places.status);
+            let errorMessage = 'Error searching for coffee shops. ';
+            
+            switch(places.status) {
+                case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
+                    errorMessage += 'Too many requests. Please try again later.';
+                    break;
+                case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
+                    errorMessage += 'Request denied. Please check your API key and billing status.';
+                    break;
+                case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
+                    errorMessage += 'Invalid request. Please try again.';
+                    break;
+                default:
+                    errorMessage += 'Please try again later.';
             }
-        });
+            
+            console.error(errorMessage);
+            alert(errorMessage);
+        }
     } catch (error) {
         console.error('Error in searchCoffeeShops:', error);
         alert('Error searching for coffee shops. Please try again later.');
