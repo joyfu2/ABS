@@ -167,7 +167,4 @@ function getPlaceDetails(placeId) {
     } catch (error) {
         console.error('Error in getPlaceDetails:', error);
     }
-}
-
-// Initialize map when the page loads
-window.onload = initMap; 
+} 
