@@ -57,7 +57,8 @@ function searchCoffeeShops(location) {
             location: location,
             radius: RADIUS,
             type: ['cafe'],
-            keyword: 'coffee'
+            keyword: 'coffee',
+            rankBy: google.maps.places.RankBy.DISTANCE
         };
 
         service.nearbySearch(request, (results, status) => {
@@ -66,7 +67,7 @@ function searchCoffeeShops(location) {
                 results.forEach(place => {
                     if (place.name.toLowerCase().includes('coffee') || 
                         place.types.includes('cafe') || 
-                        place.vicinity.toLowerCase().includes('coffee')) {
+                        (place.vicinity && place.vicinity.toLowerCase().includes('coffee'))) {
                         getPlaceDetails(place.place_id);
                     }
                 });
@@ -76,6 +77,10 @@ function searchCoffeeShops(location) {
                     alert('Too many requests. Please try again later.');
                 } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
                     alert('Request denied. Please check your API key and billing status.');
+                } else if (status === google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
+                    alert('Invalid request. Please try again.');
+                } else {
+                    alert('Error searching for coffee shops. Please try again later.');
                 }
             }
         });
