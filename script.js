@@ -56,11 +56,11 @@ function searchCoffeeShops(location) {
         const request = {
             location: location,
             radius: RADIUS,
-            type: ['cafe'],
-            keyword: 'coffee'
+            query: 'coffee shop',
+            type: ['cafe']
         };
 
-        service.nearbySearch(request, (results, status) => {
+        service.textSearch(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
                 console.log('Found coffee shops:', results.length);
                 results.forEach(place => {
