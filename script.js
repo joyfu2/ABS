@@ -1,5 +1,7 @@
 let map;
 let userMarker;
+let coffeeShops = [];
+const RADIUS = 3219; // 2 miles in meters
 
 // Initialize the map
 window.initializeMap = async function() {
@@ -34,6 +36,9 @@ window.initializeMap = async function() {
                     strokeWeight: 2
                 }
             });
+
+            // Search for coffee shops
+            await searchCoffeeShops(userLocation);
         } catch (error) {
             console.error('Error getting location:', error);
             alert('Error getting your location. Please enable location services.');
@@ -41,4 +46,70 @@ window.initializeMap = async function() {
     } else {
         alert('Geolocation is not supported by your browser');
     }
-}; 
+};
+
+// Search for coffee shops using Google Places API
+async function searchCoffeeShops(location) {
+    try {
+        const service = new google.maps.places.PlacesService(map);
+        
+        const request = {
+            location: location,
+            radius: RADIUS,
+            type: ['cafe'],
+            keyword: 'coffee'
+        };
+
+        return new Promise((resolve, reject) => {
+            service.nearbySearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    results.forEach(place => {
+                        if (place.name.toLowerCase().includes('coffee') || 
+                            place.types.includes('cafe') || 
+                            (place.vicinity && place.vicinity.toLowerCase().includes('coffee'))) {
+                            addCoffeeShopMarker(place);
+                        }
+                    });
+                    resolve(results);
+                } else {
+                    console.error('Places search failed:', status);
+                    reject(new Error(status));
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error in searchCoffeeShops:', error);
+    }
+}
+
+// Add a marker for a coffee shop
+function addCoffeeShopMarker(place) {
+    const marker = new google.maps.Marker({
+        position: place.geometry.location,
+        map: map,
+        title: place.name,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#34A853',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2
+        }
+    });
+
+    // Add click listener to show info window
+    marker.addListener('click', () => {
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="padding: 8px;">
+                    <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
+                    <p style="margin: 0;">${place.vicinity}</p>
+                </div>
+            `
+        });
+        infoWindow.open(map, marker);
+    });
+
+    coffeeShops.push(marker);
+} 
