@@ -61,15 +61,14 @@ async function searchCoffeeShops(location) {
         // Create a search request
         const request = {
             location: location,
-            radius: RADIUS,
-            type: ['cafe'],
-            keyword: 'coffee'
+            query: 'coffee shop',
+            type: ['cafe']
         };
 
         console.log('Search request:', request);
 
         // Perform the search
-        service.nearbySearch(request, (results, status) => {
+        service.textSearch(request, (results, status) => {
             console.log('Search status:', status);
             
             if (status === google.maps.places.PlacesServiceStatus.OK) {
