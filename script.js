@@ -57,8 +57,7 @@ function searchCoffeeShops(location) {
             location: location,
             radius: RADIUS,
             type: ['cafe'],
-            keyword: 'coffee',
-            rankBy: google.maps.places.RankBy.DISTANCE
+            keyword: 'coffee'
         };
 
         service.nearbySearch(request, (results, status) => {
