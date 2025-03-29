@@ -50,84 +50,98 @@ function initMap() {
 
 // Search for coffee shops using Google Places API
 function searchCoffeeShops(location) {
-    const service = new google.maps.places.PlacesService(map);
-    
-    const request = {
-        location: location,
-        radius: RADIUS,
-        type: ['cafe'],
-        keyword: 'coffee'
-    };
+    try {
+        const service = new google.maps.places.PlacesService(map);
+        
+        const request = {
+            location: location,
+            radius: RADIUS,
+            type: ['cafe'],
+            keyword: 'coffee'
+        };
 
-    service.nearbySearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log('Found coffee shops:', results.length);
-            results.forEach(place => {
-                if (place.name.toLowerCase().includes('coffee') || 
-                    place.types.includes('cafe') || 
-                    place.vicinity.toLowerCase().includes('coffee')) {
-                    getPlaceDetails(place.place_id);
+        service.nearbySearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                console.log('Found coffee shops:', results.length);
+                results.forEach(place => {
+                    if (place.name.toLowerCase().includes('coffee') || 
+                        place.types.includes('cafe') || 
+                        place.vicinity.toLowerCase().includes('coffee')) {
+                        getPlaceDetails(place.place_id);
+                    }
+                });
+            } else {
+                console.error('Places search failed:', status);
+                if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+                    alert('Too many requests. Please try again later.');
+                } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
+                    alert('Request denied. Please check your API key and billing status.');
                 }
-            });
-        } else {
-            console.error('Places search failed:', status);
-        }
-    });
+            }
+        });
+    } catch (error) {
+        console.error('Error in searchCoffeeShops:', error);
+        alert('Error searching for coffee shops. Please try again later.');
+    }
 }
 
 // Get detailed information about each coffee shop
 function getPlaceDetails(placeId) {
-    const service = new google.maps.places.PlacesService(map);
-    
-    service.getDetails({
-        placeId: placeId,
-        fields: ['name', 'rating', 'price_level', 'website', 'geometry', 'opening_hours', 'formatted_address']
-    }, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-            // Calculate estimated pickup time (random for demo)
-            const estimatedTime = Math.floor(Math.random() * 15) + 5;
-            
-            // Calculate price level (1-3)
-            const priceLevel = place.price_level || 1;
-            const priceSigns = '$'.repeat(priceLevel);
-            
-            // Create marker
-            const marker = new google.maps.Marker({
-                position: place.geometry.location,
-                map: map,
-                title: place.name,
-                animation: google.maps.Animation.DROP
-            });
+    try {
+        const service = new google.maps.places.PlacesService(map);
+        
+        service.getDetails({
+            placeId: placeId,
+            fields: ['name', 'rating', 'price_level', 'website', 'geometry', 'opening_hours', 'formatted_address']
+        }, (place, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                // Calculate estimated pickup time (random for demo)
+                const estimatedTime = Math.floor(Math.random() * 15) + 5;
+                
+                // Calculate price level (1-3)
+                const priceLevel = place.price_level || 1;
+                const priceSigns = '$'.repeat(priceLevel);
+                
+                // Create marker
+                const marker = new google.maps.Marker({
+                    position: place.geometry.location,
+                    map: map,
+                    title: place.name,
+                    animation: google.maps.Animation.DROP
+                });
 
-            // Create info window content
-            const content = `
-                <div class="marker-content">
-                    <h3>${place.name}</h3>
-                    <div class="time">${estimatedTime} min pickup</div>
-                    <div class="price">${priceSigns}</div>
-                    <div class="address">${place.formatted_address}</div>
-                    ${place.website ? `<a href="${place.website}" class="order-link" target="_blank">Order Ahead</a>` : ''}
-                </div>
-            `;
+                // Create info window content
+                const content = `
+                    <div class="marker-content">
+                        <h3>${place.name}</h3>
+                        <div class="time">${estimatedTime} min pickup</div>
+                        <div class="price">${priceSigns}</div>
+                        <div class="address">${place.formatted_address}</div>
+                        ${place.website ? `<a href="${place.website}" class="order-link" target="_blank">Order Ahead</a>` : ''}
+                    </div>
+                `;
 
-            const infoWindow = new google.maps.InfoWindow({
-                content: content
-            });
+                const infoWindow = new google.maps.InfoWindow({
+                    content: content
+                });
 
-            // Add click listener to marker
-            marker.addListener('click', () => {
-                infoWindow.open(map, marker);
-            });
+                // Add click listener to marker
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
 
-            coffeeShops.push({
-                marker: marker,
-                infoWindow: infoWindow,
-                place: place
-            });
-        } else {
-            console.error('Place details failed:', status);
-        }
-    });
+                coffeeShops.push({
+                    marker: marker,
+                    infoWindow: infoWindow,
+                    place: place
+                });
+            } else {
+                console.error('Place details failed:', status);
+            }
+        });
+    } catch (error) {
+        console.error('Error in getPlaceDetails:', error);
+    }
 }
 
 // Initialize map when the page loads
