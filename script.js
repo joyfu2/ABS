@@ -4,84 +4,88 @@ let coffeeShops = [];
 const RADIUS = 8047; // 5 miles in meters
 
 // Initialize the map
-function initMap() {
+async function initMap() {
     // Get user's location
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
+        try {
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
 
-                // Create map centered on user's location
-                map = new google.maps.Map(document.getElementById('map'), {
-                    center: userLocation,
-                    zoom: 13
-                });
+            const userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
 
-                // Add user marker
-                userMarker = new google.maps.Marker({
-                    position: userLocation,
-                    map: map,
-                    title: 'Your Location',
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: '#4285F4',
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2
-                    }
-                });
+            // Create map centered on user's location
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: userLocation,
+                zoom: 13
+            });
 
-                // Search for coffee shops
-                searchCoffeeShops(userLocation);
-            },
-            (error) => {
-                console.error('Error getting location:', error);
-                alert('Error getting your location. Please enable location services.');
-            }
-        );
+            // Add user marker using AdvancedMarkerElement
+            const userMarkerView = new google.maps.marker.PinView({
+                background: '#4285F4',
+                borderColor: '#ffffff',
+                glyph: '',
+                scale: 1.2
+            });
+
+            userMarker = new google.maps.marker.AdvancedMarkerElement({
+                map,
+                position: userLocation,
+                title: 'Your Location',
+                content: userMarkerView.element
+            });
+
+            // Search for coffee shops
+            await searchCoffeeShops(userLocation);
+        } catch (error) {
+            console.error('Error getting location:', error);
+            alert('Error getting your location. Please enable location services.');
+        }
     } else {
         alert('Geolocation is not supported by your browser');
     }
 }
 
 // Search for coffee shops using Google Places API
-function searchCoffeeShops(location) {
+async function searchCoffeeShops(location) {
     try {
         const service = new google.maps.places.PlacesService(map);
         
         const request = {
             location: location,
-            radius: RADIUS,
             query: 'coffee shop',
             type: ['cafe']
         };
 
-        service.textSearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK) {
-                console.log('Found coffee shops:', results.length);
-                results.forEach(place => {
-                    if (place.name.toLowerCase().includes('coffee') || 
-                        place.types.includes('cafe') || 
-                        (place.vicinity && place.vicinity.toLowerCase().includes('coffee'))) {
-                        getPlaceDetails(place.place_id);
-                    }
-                });
-            } else {
-                console.error('Places search failed:', status);
-                if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-                    alert('Too many requests. Please try again later.');
-                } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
-                    alert('Request denied. Please check your API key and billing status.');
-                } else if (status === google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
-                    alert('Invalid request. Please try again.');
+        return new Promise((resolve, reject) => {
+            service.textSearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    console.log('Found coffee shops:', results.length);
+                    results.forEach(place => {
+                        if (place.name.toLowerCase().includes('coffee') || 
+                            place.types.includes('cafe') || 
+                            (place.vicinity && place.vicinity.toLowerCase().includes('coffee'))) {
+                            getPlaceDetails(place.place_id);
+                        }
+                    });
+                    resolve(results);
                 } else {
-                    alert('Error searching for coffee shops. Please try again later.');
+                    console.error('Places search failed:', status);
+                    let errorMessage = 'Error searching for coffee shops. Please try again later.';
+                    if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+                        errorMessage = 'Too many requests. Please try again later.';
+                    } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
+                        errorMessage = 'Request denied. Please check your API key and billing status.';
+                    } else if (status === google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
+                        errorMessage = 'Invalid request. Please try again.';
+                    }
+                    alert(errorMessage);
+                    reject(new Error(status));
                 }
-            }
+            });
         });
     } catch (error) {
         console.error('Error in searchCoffeeShops:', error);
@@ -106,12 +110,19 @@ function getPlaceDetails(placeId) {
                 const priceLevel = place.price_level || 1;
                 const priceSigns = '$'.repeat(priceLevel);
                 
-                // Create marker
-                const marker = new google.maps.Marker({
+                // Create marker using AdvancedMarkerElement
+                const markerView = new google.maps.marker.PinView({
+                    background: '#FF5722',
+                    borderColor: '#ffffff',
+                    glyph: '',
+                    scale: 1.2
+                });
+
+                const marker = new google.maps.marker.AdvancedMarkerElement({
+                    map,
                     position: place.geometry.location,
-                    map: map,
                     title: place.name,
-                    animation: google.maps.Animation.DROP
+                    content: markerView.element
                 });
 
                 // Create info window content
