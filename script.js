@@ -75,22 +75,13 @@ function createUserMarkerContent() {
 async function searchCoffeeShops(location) {
     console.log('Starting coffee shop search...');
     
-    const request = {
-        location: location,
-        radius: RADIUS,
-        type: 'cafe',
-        keyword: 'coffee cafe espresso'
-    };
-
-    console.log('Search request:', request);
-
     try {
         const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=${RADIUS}&type=cafe&keyword=coffee cafe espresso&key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg`);
         const data = await response.json();
 
         if (data.status === 'OK') {
             // Filter results to ensure they are coffee shops
-            const coffeeShops = data.results.filter(place => {
+            const filteredShops = data.results.filter(place => {
                 const name = place.name.toLowerCase();
                 const types = place.types || [];
                 
@@ -121,8 +112,8 @@ async function searchCoffeeShops(location) {
                 return isCoffeeShopType && (hasCoffeeTerms || isCoffeeChain);
             });
 
-            console.log('Found coffee shops:', coffeeShops.length);
-            window.coffeeShops = coffeeShops;
+            console.log('Found coffee shops:', filteredShops.length);
+            window.coffeeShops = filteredShops;
             addCoffeeShopMarkers();
         } else {
             console.error('Places search failed:', data.status);
@@ -139,21 +130,28 @@ async function searchCoffeeShops(location) {
 
 // Add coffee shop markers to map
 function addCoffeeShopMarkers() {
-    coffeeShops.forEach(place => {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-            map,
-            position: {
+    // Clear existing markers if any
+    if (window.coffeeShops) {
+        window.coffeeShops.forEach(place => {
+            const position = {
                 lat: place.geometry.location.lat,
                 lng: place.geometry.location.lng
-            },
-            content: createCoffeeShopMarkerContent()
-        });
+            };
+            
+            console.log('Adding marker for:', place.name, 'at position:', position);
+            
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+                map,
+                position: position,
+                content: createCoffeeShopMarkerContent()
+            });
 
-        // Add click listener
-        marker.element.addEventListener('click', () => {
-            showInfoWindow(place, marker);
+            // Add click listener
+            marker.element.addEventListener('click', () => {
+                showInfoWindow(place, marker);
+            });
         });
-    });
+    }
 }
 
 // Create coffee shop marker content
