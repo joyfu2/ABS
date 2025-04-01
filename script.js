@@ -22,7 +22,6 @@ function initializeMap() {
         styles: [
             {
                 featureType: 'poi',
-                elementType: 'labels',
                 stylers: [{ visibility: 'off' }]
             },
             {
@@ -43,6 +42,18 @@ function initializeMap() {
             },
             {
                 featureType: 'poi.park',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.attraction',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.landmark',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.point_of_interest',
                 stylers: [{ visibility: 'off' }]
             }
         ]
