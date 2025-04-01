@@ -4,51 +4,50 @@ let coffeeShops = [];
 const RADIUS = 5000; // 5km radius
 
 // Initialize the map
-window.initializeMap = async function() {
+function initializeMap() {
     if (navigator.geolocation) {
-        try {
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject);
-            });
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
 
-            const userLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
+                console.log('User location:', userLocation);
 
-            console.log('User location:', userLocation);
+                // Create map centered on user's location
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: userLocation,
+                    zoom: 13
+                });
 
-            // Create map centered on user's location
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: userLocation,
-                zoom: 13
-            });
+                // Add user marker
+                userMarker = new google.maps.Marker({
+                    position: userLocation,
+                    map: map,
+                    title: 'Your Location',
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#4285F4',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    }
+                });
 
-            // Add user marker
-            userMarker = new google.maps.Marker({
-                position: userLocation,
-                map: map,
-                title: 'Your Location',
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    fillColor: '#4285F4',
-                    fillOpacity: 1,
-                    strokeColor: '#ffffff',
-                    strokeWeight: 2
-                }
-            });
-
-            // Search for coffee shops
-            await searchCoffeeShops(userLocation);
-        } catch (error) {
-            console.error('Error getting location:', error);
-            alert('Error getting your location. Please enable location services.');
-        }
+                // Search for coffee shops
+                searchCoffeeShops(userLocation);
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                alert('Error getting your location. Please enable location services.');
+            }
+        );
     } else {
         alert('Geolocation is not supported by your browser');
     }
-};
+}
 
 // Search for coffee shops using Google Places API
 async function searchCoffeeShops(location) {
