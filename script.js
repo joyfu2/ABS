@@ -62,86 +62,90 @@ function createUserMarkerContent() {
 async function searchCoffeeShops(map, location) {
     console.log('Starting coffee shop search...');
     
-    // Create a search request
-    const request = {
-        location: location,
-        radius: RADIUS,
-        type: 'cafe',
-        keyword: 'coffee cafe espresso'
-    };
-
-    console.log('Search request:', request);
-
+    // Define search types
+    const searchTypes = ['cafe', 'restaurant'];
+    let allResults = [];
+    
     try {
         // Create a PlacesService instance
         const service = new google.maps.places.PlacesService(map);
 
-        // Perform the search
-        service.nearbySearch(request, (results, status) => {
-            console.log('Search status:', status);
-            
-            if (status === google.maps.places.PlacesServiceStatus.OK) {
-                console.log('Found places:', results.length);
-                
-                // Filter and add markers for coffee shops
-                results.forEach(place => {
-                    console.log('Checking place:', place.name);
-                    console.log('Place types:', place.types);
-                    
-                    // Check if it's a coffee shop based on name and types
-                    const name = place.name.toLowerCase();
-                    const isCoffeeShop = 
-                        // Include places with 'cafe' type
-                        place.types.includes('cafe') ||
-                        // Include places with coffee-related terms in name
-                        name.includes('coffee') ||
-                        name.includes('café') ||
-                        name.includes('cafe') ||
-                        name.includes('espresso') ||
-                        name.includes('latte') ||
-                        name.includes('roaster') ||
-                        name.includes('roastery') ||
-                        name.includes('blue bottle') ||
-                        name.includes('starbucks') ||
-                        name.includes('dunkin') ||
-                        name.includes('peets') ||
-                        name.includes('gregorys') ||
-                        name.includes('joe coffee') ||
-                        name.includes('la colombe') ||
-                        // Include restaurants that mention coffee in their name
-                        (place.types.includes('restaurant') && (
-                            name.includes('coffee') ||
-                            name.includes('café') ||
-                            name.includes('cafe')
-                        ));
-                    
-                    if (isCoffeeShop) {
-                        console.log('Adding coffee shop:', place.name);
-                        addCoffeeShopMarker(map, place);
+        // Function to perform a single search
+        const performSearch = (type) => {
+            return new Promise((resolve, reject) => {
+                const request = {
+                    location: location,
+                    radius: RADIUS,
+                    type: type,
+                    keyword: 'coffee cafe espresso'
+                };
+
+                console.log(`Searching for ${type}:`, request);
+
+                service.nearbySearch(request, (results, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        resolve(results);
                     } else {
-                        console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
+                        reject(status);
                     }
                 });
+            });
+        };
+
+        // Perform searches for each type
+        for (const type of searchTypes) {
+            try {
+                const results = await performSearch(type);
+                allResults = allResults.concat(results);
+            } catch (error) {
+                console.error(`Error searching for ${type}:`, error);
+            }
+        }
+
+        // Remove duplicates based on place_id
+        const uniqueResults = allResults.filter((place, index, self) =>
+            index === self.findIndex((p) => p.place_id === place.place_id)
+        );
+
+        console.log('Found unique places:', uniqueResults.length);
+        
+        // Filter and add markers for coffee shops
+        uniqueResults.forEach(place => {
+            console.log('Checking place:', place.name);
+            console.log('Place types:', place.types);
+            
+            // Check if it's a coffee shop based on name and types
+            const name = place.name.toLowerCase();
+            const isCoffeeShop = 
+                // Include places with coffee-related terms in name
+                name.includes('coffee') ||
+                name.includes('café') ||
+                name.includes('cafe') ||
+                name.includes('espresso') ||
+                name.includes('latte') ||
+                name.includes('roaster') ||
+                name.includes('roastery') ||
+                name.includes('blue bottle') ||
+                name.includes('starbucks') ||
+                name.includes('dunkin') ||
+                name.includes('peets') ||
+                name.includes('gregorys') ||
+                name.includes('joe coffee') ||
+                name.includes('la colombe') ||
+                // Include places with 'cafe' type
+                place.types.includes('cafe') ||
+                // Include restaurants that mention coffee in their name
+                (place.types.includes('restaurant') && (
+                    name.includes('coffee') ||
+                    name.includes('café') ||
+                    name.includes('cafe')
+                ));
+            
+            if (isCoffeeShop) {
+                console.log('Adding coffee shop:', place.name);
+                addCoffeeShopMarker(map, place);
             } else {
-                console.error('Places search failed:', status);
-                let errorMessage = 'Error searching for coffee shops. ';
-                
-                switch(status) {
-                    case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
-                        errorMessage += 'Too many requests. Please try again later.';
-                        break;
-                    case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
-                        errorMessage += 'Request denied. Please check your API key and billing status.';
-                        break;
-                    case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
-                        errorMessage += 'Invalid request. Please try again.';
-                        break;
-                    default:
-                        errorMessage += 'Please try again later.';
-                }
-                
-                console.error(errorMessage);
-                alert(errorMessage);
+                console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
             }
         });
     } catch (error) {
