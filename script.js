@@ -22,111 +22,41 @@ function initializeMap() {
         styles: [
             {
                 featureType: 'poi',
-                elementType: 'all',
                 stylers: [{ visibility: 'off' }]
             },
             {
                 featureType: 'poi.business',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.attraction',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.government',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.place_of_worship',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.school',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.sports_complex',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.medical',
-                elementType: 'all',
                 stylers: [{ visibility: 'off' }]
             },
             {
                 featureType: 'poi.park',
-                elementType: 'all',
                 stylers: [{ visibility: 'off' }]
             },
             {
-                featureType: 'poi.landmark',
-                elementType: 'all',
+                featureType: 'poi.attraction',
                 stylers: [{ visibility: 'off' }]
             },
             {
-                featureType: 'poi.point_of_interest',
-                elementType: 'all',
+                featureType: 'poi.government',
                 stylers: [{ visibility: 'off' }]
             },
             {
-                featureType: 'poi.transit',
-                elementType: 'all',
+                featureType: 'poi.place_of_worship',
                 stylers: [{ visibility: 'off' }]
             },
             {
-                featureType: 'poi.establishment',
-                elementType: 'all',
+                featureType: 'poi.school',
                 stylers: [{ visibility: 'off' }]
             },
             {
-                featureType: 'poi.natural_feature',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.cemetery',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.campground',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.parking',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.airport',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.train_station',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.bus_station',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.subway_station',
-                elementType: 'all',
+                featureType: 'poi.sports_complex',
                 stylers: [{ visibility: 'off' }]
             }
         ]
     });
+
+    // Verify styles are applied
+    console.log('Map styles:', map.get('styles'));
 
     // Initialize PlacesService
     placesService = new google.maps.places.PlacesService(map);
