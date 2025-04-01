@@ -21,16 +21,22 @@ window.initializeMap = async function() {
             // Create map centered on user's location
             map = new google.maps.Map(document.getElementById('map'), {
                 center: userLocation,
-                zoom: 13,
-                mapId: 'YOUR_MAP_ID' // Replace with your Map ID from Google Cloud Console
+                zoom: 13
             });
 
-            // Add user marker with Advanced Marker
-            userMarker = new google.maps.marker.AdvancedMarkerElement({
+            // Add user marker
+            userMarker = new google.maps.Marker({
                 position: userLocation,
                 map: map,
                 title: 'Your Location',
-                content: createUserMarkerContent()
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: '#4285F4',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                }
             });
 
             // Search for coffee shops
@@ -43,17 +49,6 @@ window.initializeMap = async function() {
         alert('Geolocation is not supported by your browser');
     }
 };
-
-// Create user marker content
-function createUserMarkerContent() {
-    const div = document.createElement('div');
-    div.style.width = '20px';
-    div.style.height = '20px';
-    div.style.borderRadius = '50%';
-    div.style.backgroundColor = '#4285F4';
-    div.style.border = '2px solid white';
-    return div;
-}
 
 // Search for coffee shops using Google Places API
 async function searchCoffeeShops(location) {
@@ -120,11 +115,18 @@ async function searchCoffeeShops(location) {
 function addCoffeeShopMarker(place) {
     console.log('Creating marker for:', place.name);
     
-    const marker = new google.maps.marker.AdvancedMarkerElement({
+    const marker = new google.maps.Marker({
         position: place.geometry.location,
         map: map,
         title: place.name,
-        content: createCoffeeShopMarkerContent()
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#34A853',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2
+        }
     });
 
     // Add click listener to show info window
@@ -142,15 +144,4 @@ function addCoffeeShopMarker(place) {
 
     coffeeShops.push(marker);
     console.log('Marker added for:', place.name);
-}
-
-// Create coffee shop marker content
-function createCoffeeShopMarkerContent() {
-    const div = document.createElement('div');
-    div.style.width = '16px';
-    div.style.height = '16px';
-    div.style.borderRadius = '50%';
-    div.style.backgroundColor = '#34A853';
-    div.style.border = '2px solid white';
-    return div;
 } 
