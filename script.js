@@ -61,7 +61,7 @@ function createUserMarkerContent() {
 }
 
 // Search for coffee shops using Google Places API
-function searchCoffeeShops(location) {
+async function searchCoffeeShops(location) {
     console.log('Starting coffee shop search...');
     
     // Create a search request
@@ -74,18 +74,16 @@ function searchCoffeeShops(location) {
 
     console.log('Search request:', request);
 
-    // Create a PlacesService instance
-    const service = new google.maps.places.PlacesService(map);
-
-    // Perform the search
-    service.nearbySearch(request, (results, status) => {
-        console.log('Search status:', status);
+    try {
+        // Use the new Place API
+        const response = await google.maps.places.Place.search(request);
+        console.log('Search status:', response.status);
         
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log('Found places:', results.length);
+        if (response.status === 'OK') {
+            console.log('Found places:', response.results.length);
             
             // Filter and add markers for coffee shops
-            results.forEach(place => {
+            response.results.forEach(place => {
                 console.log('Checking place:', place.name);
                 console.log('Place types:', place.types);
                 
@@ -106,17 +104,17 @@ function searchCoffeeShops(location) {
                 }
             });
         } else {
-            console.error('Places search failed:', status);
+            console.error('Places search failed:', response.status);
             let errorMessage = 'Error searching for coffee shops. ';
             
-            switch(status) {
-                case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
+            switch(response.status) {
+                case 'OVER_QUERY_LIMIT':
                     errorMessage += 'Too many requests. Please try again later.';
                     break;
-                case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
+                case 'REQUEST_DENIED':
                     errorMessage += 'Request denied. Please check your API key and billing status.';
                     break;
-                case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
+                case 'INVALID_REQUEST':
                     errorMessage += 'Invalid request. Please try again.';
                     break;
                 default:
@@ -126,7 +124,10 @@ function searchCoffeeShops(location) {
             console.error(errorMessage);
             alert(errorMessage);
         }
-    });
+    } catch (error) {
+        console.error('Error during places search:', error);
+        alert('Error searching for coffee shops. Please try again later.');
+    }
 }
 
 // Add a marker for a coffee shop
