@@ -61,8 +61,8 @@ async function searchCoffeeShops(map, location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: ['cafe', 'restaurant'],
-        keyword: 'coffee'
+        type: ['cafe', 'restaurant', 'food', 'store'],
+        keyword: 'coffee cafe espresso'
     };
 
     console.log('Search request:', request);
@@ -96,11 +96,28 @@ async function searchCoffeeShops(map, location) {
                         name.includes('latte') ||
                         name.includes('roaster') ||
                         name.includes('roastery') ||
+                        name.includes('blue bottle') ||
+                        name.includes('starbucks') ||
+                        name.includes('dunkin') ||
+                        name.includes('peets') ||
+                        name.includes('gregorys') ||
+                        name.includes('joe coffee') ||
+                        name.includes('la colombe') ||
                         // Include restaurants that mention coffee in their name
                         (place.types.includes('restaurant') && (
                             name.includes('coffee') ||
                             name.includes('café') ||
                             name.includes('cafe')
+                        )) ||
+                        // Include stores that are known coffee chains
+                        (place.types.includes('store') && (
+                            name.includes('coffee') ||
+                            name.includes('café') ||
+                            name.includes('cafe') ||
+                            name.includes('blue bottle') ||
+                            name.includes('starbucks') ||
+                            name.includes('dunkin') ||
+                            name.includes('peets')
                         ));
                     
                     if (isCoffeeShop) {
