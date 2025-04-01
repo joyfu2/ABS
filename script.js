@@ -67,29 +67,32 @@ async function searchCoffeeShops(map, location) {
     let allResults = [];
     
     try {
-        // Create a PlacesService instance
-        const service = new google.maps.places.PlacesService(map);
-
         // Function to perform a single search
-        const performSearch = (type) => {
-            return new Promise((resolve, reject) => {
-                const request = {
-                    location: location,
-                    radius: RADIUS,
-                    type: type,
-                    keyword: 'coffee cafe espresso'
-                };
+        const performSearch = async (type) => {
+            const request = {
+                location: location,
+                radius: RADIUS,
+                type: type,
+                keyword: 'coffee cafe espresso'
+            };
 
-                console.log(`Searching for ${type}:`, request);
+            console.log(`Searching for ${type}:`, request);
 
-                service.nearbySearch(request, (results, status) => {
-                    if (status === google.maps.places.PlacesServiceStatus.OK) {
-                        resolve(results);
-                    } else {
-                        reject(status);
-                    }
-                });
-            });
+            const response = await fetch(
+                `https://maps.googleapis.com/maps/api/place/nearbysearch/json?` +
+                `location=${location.lat},${location.lng}&` +
+                `radius=${RADIUS}&` +
+                `type=${type}&` +
+                `keyword=coffee cafe espresso&` +
+                `key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg`
+            );
+
+            const data = await response.json();
+            if (data.status === 'OK') {
+                return data.results;
+            } else {
+                throw new Error(data.status);
+            }
         };
 
         // Perform searches for each type
