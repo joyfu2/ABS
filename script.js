@@ -2,7 +2,7 @@ let map;
 let userMarker;
 let coffeeShops = [];
 const RADIUS = 5000; // 5km radius
-const MAP_ID = 'YOUR_MAP_ID'; // Replace with your actual Map ID
+const MAP_ID = '8e0a97af9386fef'; // Your Map ID
 
 // Initialize the map
 window.initializeMap = function() {
@@ -123,7 +123,7 @@ function addCoffeeShopMarker(place) {
     });
 
     // Add click listener to show info window
-    marker.addListener('click', () => {
+    marker.addEventListener('gmp-click', () => {
         const infoWindow = new google.maps.InfoWindow({
             content: `
                 <div style="padding: 8px;">
