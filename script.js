@@ -17,15 +17,15 @@ window.initializeMap = function() {
                 console.log('User location:', userLocation);
 
                 // Initialize map
-                const map = new google.maps.Map(document.getElementById('map'), {
+                map = new google.maps.Map(document.getElementById('map'), {
                     center: userLocation,
                     zoom: 13,
-                    mapId: '8e0a97af9386fef'
+                    mapId: MAP_ID
                 });
                 console.log('Map initialized successfully');
 
                 // Add user marker
-                const userMarker = new google.maps.Marker({
+                userMarker = new google.maps.Marker({
                     position: userLocation,
                     map: map,
                     title: 'Your Location',
@@ -52,17 +52,6 @@ window.initializeMap = function() {
         console.error('Geolocation is not supported by this browser.');
     }
 };
-
-// Create user marker content
-function createUserMarkerContent() {
-    const div = document.createElement('div');
-    div.style.width = '20px';
-    div.style.height = '20px';
-    div.style.borderRadius = '50%';
-    div.style.backgroundColor = '#4285F4';
-    div.style.border = '2px solid white';
-    return div;
-}
 
 // Search for coffee shops using Google Places API
 async function searchCoffeeShops(map, location) {
@@ -143,11 +132,18 @@ function addCoffeeShopMarker(map, place) {
     console.log('Creating marker for:', place.name);
     console.log('Place location:', place.geometry.location);
     
-    const marker = new google.maps.marker.AdvancedMarkerElement({
-        map,
+    const marker = new google.maps.Marker({
         position: place.geometry.location,
+        map: map,
         title: place.name,
-        content: createCoffeeShopMarkerContent()
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 6,
+            fillColor: '#34A853',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2
+        }
     });
 
     console.log('Marker created successfully');
@@ -165,7 +161,7 @@ function addCoffeeShopMarker(map, place) {
     });
 
     // Add click event listener
-    marker.element.addEventListener('gmp-click', () => {
+    marker.addListener('click', () => {
         infoWindow.open(map, marker);
     });
 
@@ -177,15 +173,4 @@ function addCoffeeShopMarker(map, place) {
     coffeeShops.push(marker);
     console.log('Marker added for:', place.name);
     return marker;
-}
-
-// Create coffee shop marker content
-function createCoffeeShopMarkerContent() {
-    const div = document.createElement('div');
-    div.style.width = '16px';
-    div.style.height = '16px';
-    div.style.borderRadius = '50%';
-    div.style.backgroundColor = '#34A853';
-    div.style.border = '2px solid white';
-    return div;
 } 
