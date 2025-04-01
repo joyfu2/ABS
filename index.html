@@ -3,17 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Coffee Shops</title>
-    <link rel="stylesheet" href="styles.css">
-    <script>
-        function initMap() {
-            window.initializeMap();
-        }
-    </script>
+    <title>NYC Coffee Shop Locator</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
         #map {
             height: 100vh;
             width: 100%;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .error {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
         }
         .user-marker {
             width: 16px;
@@ -33,8 +55,16 @@
 </head>
 <body>
     <div id="map"></div>
+    <div id="loading" class="loading">Loading...</div>
+    <div id="error" class="error"></div>
+
+    <script>
+        function initMap() {
+            window.initializeMap();
+        }
+    </script>
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,marker&callback=initMap&map_id=8e0a97af9386fef"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,marker&callback=initMap"
         crossorigin="anonymous">
     </script>
     <script src="script.js"></script>

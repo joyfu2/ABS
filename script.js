@@ -1,212 +1,165 @@
+// Constants
+const RADIUS = 8000; // 5 miles in meters
+const DEFAULT_LOCATION = { lat: 40.7128, lng: -74.0060 }; // New York City
+
+// Global variables
 let map;
 let userMarker;
+let infoWindow;
 let coffeeShops = [];
-const RADIUS = 5000; // 5km radius
-const MAP_ID = '8e0a97af9386fef'; // Your Map ID
 
 // Initialize the map
 window.initializeMap = function() {
+    // Show loading indicator
+    document.getElementById('loading').style.display = 'block';
+
+    // Initialize map with default location
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: DEFAULT_LOCATION,
+        zoom: 13,
+        mapId: '8e0a97af9386fef'
+    });
+
+    // Get user's location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
+            position => {
                 const userLocation = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 };
-
                 console.log('User location:', userLocation);
-
-                // Initialize map
-                map = new google.maps.Map(document.getElementById('map'), {
-                    center: userLocation,
-                    zoom: 13,
-                    mapId: MAP_ID
-                });
-                console.log('Map initialized successfully');
-
-                // Add user marker using Advanced Marker
-                userMarker = new google.maps.marker.AdvancedMarkerElement({
-                    position: userLocation,
-                    map: map,
-                    title: 'Your Location',
-                    content: createUserMarkerContent()
-                });
-                console.log('User marker created');
-
+                
+                // Center map on user location
+                map.setCenter(userLocation);
+                
+                // Add user marker
+                addUserMarker(userLocation);
+                
                 // Search for coffee shops
-                searchCoffeeShops(map, userLocation);
+                searchCoffeeShops(userLocation);
             },
-            (error) => {
-                console.error('Error getting location:', error);
-                alert('Error getting your location. Please enable location services.');
+            error => {
+                console.error('Geolocation error:', error);
+                showError('Unable to get your location. Using default location.');
+                
+                // Use default location
+                addUserMarker(DEFAULT_LOCATION);
+                searchCoffeeShops(DEFAULT_LOCATION);
             }
         );
     } else {
-        console.error('Geolocation is not supported by this browser.');
+        showError('Geolocation is not supported by your browser.');
+        addUserMarker(DEFAULT_LOCATION);
+        searchCoffeeShops(DEFAULT_LOCATION);
     }
 };
+
+// Add user marker to map
+function addUserMarker(location) {
+    userMarker = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: location,
+        content: createUserMarkerContent()
+    });
+}
 
 // Create user marker content
 function createUserMarkerContent() {
     const div = document.createElement('div');
     div.className = 'user-marker';
-    div.style.width = '16px';
-    div.style.height = '16px';
-    div.style.backgroundColor = '#4285F4';
-    div.style.border = '2px solid white';
-    div.style.borderRadius = '50%';
     return div;
 }
 
-// Search for coffee shops using Google Places API
-async function searchCoffeeShops(map, location) {
+// Search for coffee shops
+async function searchCoffeeShops(location) {
     console.log('Starting coffee shop search...');
     
-    // Define search types
-    const searchTypes = ['cafe', 'restaurant'];
-    let allResults = [];
-    
     try {
-        // Function to perform a single search
-        const performSearch = async (type) => {
-            const request = {
-                location: location,
-                radius: RADIUS,
-                type: type,
-                keyword: 'coffee cafe espresso'
-            };
-
-            console.log(`Searching for ${type}:`, request);
-
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/place/nearbysearch/json?` +
-                `location=${location.lat},${location.lng}&` +
-                `radius=${RADIUS}&` +
-                `type=${type}&` +
-                `keyword=coffee cafe espresso&` +
-                `key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg`
-            );
-
-            const data = await response.json();
-            if (data.status === 'OK') {
-                return data.results;
-            } else {
-                throw new Error(data.status);
-            }
-        };
-
-        // Perform searches for each type
-        for (const type of searchTypes) {
-            try {
-                const results = await performSearch(type);
-                allResults = allResults.concat(results);
-            } catch (error) {
-                console.error(`Error searching for ${type}:`, error);
-            }
-        }
-
-        // Remove duplicates based on place_id
-        const uniqueResults = allResults.filter((place, index, self) =>
-            index === self.findIndex((p) => p.place_id === place.place_id)
+        const response = await fetch(
+            `https://maps.googleapis.com/maps/api/place/nearbysearch/json?` +
+            `location=${location.lat},${location.lng}&` +
+            `radius=${RADIUS}&` +
+            `type=cafe&` +
+            `key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg`
         );
 
-        console.log('Found unique places:', uniqueResults.length);
+        const data = await response.json();
         
-        // Filter and add markers for coffee shops
-        uniqueResults.forEach(place => {
-            console.log('Checking place:', place.name);
-            console.log('Place types:', place.types);
-            
-            // Check if it's a coffee shop based on name and types
-            const name = place.name.toLowerCase();
-            const isCoffeeShop = 
-                // Include places with coffee-related terms in name
-                name.includes('coffee') ||
-                name.includes('café') ||
-                name.includes('cafe') ||
-                name.includes('espresso') ||
-                name.includes('latte') ||
-                name.includes('roaster') ||
-                name.includes('roastery') ||
-                name.includes('blue bottle') ||
-                name.includes('starbucks') ||
-                name.includes('dunkin') ||
-                name.includes('peets') ||
-                name.includes('gregorys') ||
-                name.includes('joe coffee') ||
-                name.includes('la colombe') ||
-                // Include places with 'cafe' type
-                place.types.includes('cafe') ||
-                // Include restaurants that mention coffee in their name
-                (place.types.includes('restaurant') && (
-                    name.includes('coffee') ||
-                    name.includes('café') ||
-                    name.includes('cafe')
-                ));
-            
-            if (isCoffeeShop) {
-                console.log('Adding coffee shop:', place.name);
-                addCoffeeShopMarker(map, place);
-            } else {
-                console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
-            }
-        });
+        if (data.status === 'OK') {
+            coffeeShops = data.results;
+            addCoffeeShopMarkers();
+        } else {
+            throw new Error(data.status);
+        }
     } catch (error) {
-        console.error('Error during places search:', error);
-        alert('Error searching for coffee shops. Please try again later.');
+        console.error('Error searching for coffee shops:', error);
+        showError('Error finding coffee shops. Please try again later.');
+    } finally {
+        // Hide loading indicator
+        document.getElementById('loading').style.display = 'none';
     }
 }
 
-// Add a marker for a coffee shop
-function addCoffeeShopMarker(map, place) {
-    console.log('Creating marker for:', place.name);
-    console.log('Place location:', place.geometry.location);
-    
-    const marker = new google.maps.marker.AdvancedMarkerElement({
-        position: place.geometry.location,
-        map: map,
-        title: place.name,
-        content: createCoffeeShopMarkerContent()
+// Add coffee shop markers to map
+function addCoffeeShopMarkers() {
+    coffeeShops.forEach(place => {
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+            map,
+            position: place.geometry.location,
+            content: createCoffeeShopMarkerContent()
+        });
+
+        // Add click listener
+        marker.element.addEventListener('click', () => {
+            showInfoWindow(place, marker);
+        });
     });
-
-    console.log('Marker created successfully');
-
-    // Create info window
-    const infoWindow = new google.maps.InfoWindow({
-        content: `
-            <div style="padding: 8px;">
-                <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
-                <p style="margin: 0 0 4px 0;">${place.vicinity}</p>
-                ${place.rating ? `<p style="margin: 0 0 4px 0;">Rating: ${place.rating} ⭐</p>` : ''}
-                ${place.opening_hours ? `<p style="margin: 0;">${place.opening_hours.isOpen() ? '🟢 Open' : '🔴 Closed'}</p>` : ''}
-            </div>
-        `
-    });
-
-    // Add click event listener
-    marker.element.addEventListener('click', () => {
-        infoWindow.open(map, marker);
-        map.setCenter(marker.position);
-    });
-
-    // Close info window when clicking on the map
-    map.addListener('click', () => {
-        infoWindow.close();
-    });
-
-    coffeeShops.push(marker);
-    console.log('Marker added for:', place.name);
-    return marker;
 }
 
 // Create coffee shop marker content
 function createCoffeeShopMarkerContent() {
     const div = document.createElement('div');
     div.className = 'coffee-shop-marker';
-    div.style.width = '12px';
-    div.style.height = '12px';
-    div.style.backgroundColor = '#34A853';
-    div.style.border = '2px solid white';
-    div.style.borderRadius = '50%';
     return div;
+}
+
+// Show info window for a coffee shop
+function showInfoWindow(place, marker) {
+    // Close existing info window
+    if (infoWindow) {
+        infoWindow.close();
+    }
+
+    // Create info window content
+    const content = `
+        <div style="padding: 10px;">
+            <h3 style="margin: 0 0 10px 0;">${place.name}</h3>
+            ${place.vicinity ? `<p style="margin: 0 0 10px 0;">${place.vicinity}</p>` : ''}
+            ${place.rating ? `<p style="margin: 0 0 10px 0;">Rating: ${place.rating} ⭐</p>` : ''}
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat()},${place.geometry.location.lng()}" 
+               target="_blank" 
+               style="display: inline-block; padding: 8px 16px; background-color: #4285F4; color: white; text-decoration: none; border-radius: 4px;">
+                Get Directions
+            </a>
+        </div>
+    `;
+
+    // Create and open new info window
+    infoWindow = new google.maps.InfoWindow({
+        content: content
+    });
+
+    infoWindow.open(map, marker);
+    map.setCenter(marker.position);
+}
+
+// Show error message
+function showError(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
 } 
