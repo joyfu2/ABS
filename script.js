@@ -61,20 +61,23 @@ function searchCoffeeShops(location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: ['cafe']
+        type: 'cafe'
     };
 
     console.log('Search request:', request);
 
-    // Perform the search using the new Place API
-    google.maps.places.Place.search(request).then((places) => {
-        console.log('Search status:', places.status);
+    // Create a PlacesService instance
+    const service = new google.maps.places.PlacesService(map);
+
+    // Perform the search
+    service.nearbySearch(request, (results, status) => {
+        console.log('Search status:', status);
         
-        if (places.status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log('Found places:', places.results.length);
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log('Found places:', results.length);
             
             // Filter and add markers for coffee shops
-            places.results.forEach(place => {
+            results.forEach(place => {
                 console.log('Checking place:', place.name);
                 if (place.name.toLowerCase().includes('coffee') || 
                     place.types.includes('cafe')) {
@@ -83,10 +86,10 @@ function searchCoffeeShops(location) {
                 }
             });
         } else {
-            console.error('Places search failed:', places.status);
+            console.error('Places search failed:', status);
             let errorMessage = 'Error searching for coffee shops. ';
             
-            switch(places.status) {
+            switch(status) {
                 case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
                     errorMessage += 'Too many requests. Please try again later.';
                     break;
@@ -103,9 +106,6 @@ function searchCoffeeShops(location) {
             console.error(errorMessage);
             alert(errorMessage);
         }
-    }).catch((error) => {
-        console.error('Error in searchCoffeeShops:', error);
-        alert('Error searching for coffee shops. Please try again later.');
     });
 }
 
