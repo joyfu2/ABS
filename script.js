@@ -61,7 +61,7 @@ async function searchCoffeeShops(map, location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: 'cafe',
+        type: ['cafe', 'restaurant'],
         keyword: 'coffee'
     };
 
@@ -86,11 +86,22 @@ async function searchCoffeeShops(map, location) {
                     // Check if it's a coffee shop based on name and types
                     const name = place.name.toLowerCase();
                     const isCoffeeShop = 
-                        (name.includes('coffee') && place.types.includes('cafe')) ||
-                        (name.includes('café') && place.types.includes('cafe')) ||
-                        (name.includes('cafe') && place.types.includes('cafe')) ||
-                        (name.includes('espresso') && place.types.includes('cafe')) ||
-                        (name.includes('latte') && place.types.includes('cafe'));
+                        // Include places with 'cafe' type
+                        place.types.includes('cafe') ||
+                        // Include places with coffee-related terms in name
+                        name.includes('coffee') ||
+                        name.includes('café') ||
+                        name.includes('cafe') ||
+                        name.includes('espresso') ||
+                        name.includes('latte') ||
+                        name.includes('roaster') ||
+                        name.includes('roastery') ||
+                        // Include restaurants that mention coffee in their name
+                        (place.types.includes('restaurant') && (
+                            name.includes('coffee') ||
+                            name.includes('café') ||
+                            name.includes('cafe')
+                        ));
                     
                     if (isCoffeeShop) {
                         console.log('Adding coffee shop:', place.name);
