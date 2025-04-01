@@ -52,6 +52,10 @@
             border-radius: 50%;
         }
     </style>
+    <link rel="stylesheet" href="styles.css">
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,marker&callback=initMap">
+    </script>
 </head>
 <body>
     <div id="map"></div>
@@ -62,10 +66,6 @@
         function initMap() {
             window.initializeMap();
         }
-    </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,marker&callback=initMap"
-        crossorigin="anonymous">
     </script>
     <script src="script.js"></script>
 </body>
