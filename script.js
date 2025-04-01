@@ -24,19 +24,12 @@ window.initializeMap = function() {
                 });
                 console.log('Map initialized successfully');
 
-                // Add user marker
-                userMarker = new google.maps.Marker({
+                // Add user marker using Advanced Marker
+                userMarker = new google.maps.marker.AdvancedMarkerElement({
                     position: userLocation,
                     map: map,
                     title: 'Your Location',
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 8,
-                        fillColor: '#4285F4',
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2
-                    }
+                    content: createUserMarkerContent()
                 });
                 console.log('User marker created');
 
@@ -53,6 +46,18 @@ window.initializeMap = function() {
     }
 };
 
+// Create user marker content
+function createUserMarkerContent() {
+    const div = document.createElement('div');
+    div.className = 'user-marker';
+    div.style.width = '16px';
+    div.style.height = '16px';
+    div.style.backgroundColor = '#4285F4';
+    div.style.border = '2px solid white';
+    div.style.borderRadius = '50%';
+    return div;
+}
+
 // Search for coffee shops using Google Places API
 async function searchCoffeeShops(map, location) {
     console.log('Starting coffee shop search...');
@@ -61,7 +66,7 @@ async function searchCoffeeShops(map, location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: ['cafe', 'restaurant', 'food', 'store'],
+        type: 'cafe',
         keyword: 'coffee cafe espresso'
     };
 
@@ -108,16 +113,6 @@ async function searchCoffeeShops(map, location) {
                             name.includes('coffee') ||
                             name.includes('café') ||
                             name.includes('cafe')
-                        )) ||
-                        // Include stores that are known coffee chains
-                        (place.types.includes('store') && (
-                            name.includes('coffee') ||
-                            name.includes('café') ||
-                            name.includes('cafe') ||
-                            name.includes('blue bottle') ||
-                            name.includes('starbucks') ||
-                            name.includes('dunkin') ||
-                            name.includes('peets')
                         ));
                     
                     if (isCoffeeShop) {
@@ -160,18 +155,11 @@ function addCoffeeShopMarker(map, place) {
     console.log('Creating marker for:', place.name);
     console.log('Place location:', place.geometry.location);
     
-    const marker = new google.maps.Marker({
+    const marker = new google.maps.marker.AdvancedMarkerElement({
         position: place.geometry.location,
         map: map,
         title: place.name,
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 6,
-            fillColor: '#34A853',
-            fillOpacity: 1,
-            strokeColor: '#ffffff',
-            strokeWeight: 2
-        }
+        content: createCoffeeShopMarkerContent()
     });
 
     console.log('Marker created successfully');
@@ -189,9 +177,9 @@ function addCoffeeShopMarker(map, place) {
     });
 
     // Add click event listener
-    marker.addListener('click', () => {
+    marker.element.addEventListener('gmp-click', () => {
         infoWindow.open(map, marker);
-        map.setCenter(marker.getPosition());
+        map.setCenter(marker.position);
     });
 
     // Close info window when clicking on the map
@@ -202,4 +190,16 @@ function addCoffeeShopMarker(map, place) {
     coffeeShops.push(marker);
     console.log('Marker added for:', place.name);
     return marker;
+}
+
+// Create coffee shop marker content
+function createCoffeeShopMarkerContent() {
+    const div = document.createElement('div');
+    div.className = 'coffee-shop-marker';
+    div.style.width = '12px';
+    div.style.height = '12px';
+    div.style.backgroundColor = '#34A853';
+    div.style.border = '2px solid white';
+    div.style.borderRadius = '50%';
+    return div;
 } 
