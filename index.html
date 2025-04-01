@@ -3,30 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nearby Coffee Shops</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        #map {
-            height: 100vh;
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-
+    <title>NYC Coffee Shops</title>
+    <link rel="stylesheet" href="styles.css">
     <script>
         function initMap() {
             window.initializeMap();
         }
     </script>
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,marker&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg&libraries=places,marker&callback=initMap&map_id=8e0a97af9386fef">
     </script>
+</head>
+<body>
+    <div id="map"></div>
     <script src="script.js"></script>
 </body>
 </html> 

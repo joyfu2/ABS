@@ -16,26 +16,32 @@ window.initializeMap = function() {
 
                 console.log('User location:', userLocation);
 
-                // Create map centered on user's location
-                map = new google.maps.Map(document.getElementById('map'), {
+                // Initialize map
+                const map = new google.maps.Map(document.getElementById('map'), {
                     center: userLocation,
-                    zoom: 13
+                    zoom: 13,
+                    mapId: '8e0a97af9386fef'
                 });
-
                 console.log('Map initialized successfully');
 
-                // Add user marker with Advanced Marker
-                userMarker = new google.maps.marker.AdvancedMarkerElement({
+                // Add user marker
+                const userMarker = new google.maps.Marker({
                     position: userLocation,
                     map: map,
                     title: 'Your Location',
-                    content: createUserMarkerContent()
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: '#4285F4',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    }
                 });
-
                 console.log('User marker created');
 
                 // Search for coffee shops
-                searchCoffeeShops(userLocation);
+                searchCoffeeShops(map, userLocation);
             },
             (error) => {
                 console.error('Error getting location:', error);
@@ -43,7 +49,7 @@ window.initializeMap = function() {
             }
         );
     } else {
-        alert('Geolocation is not supported by your browser');
+        console.error('Geolocation is not supported by this browser.');
     }
 };
 
@@ -59,7 +65,7 @@ function createUserMarkerContent() {
 }
 
 // Search for coffee shops using Google Places API
-async function searchCoffeeShops(location) {
+async function searchCoffeeShops(map, location) {
     console.log('Starting coffee shop search...');
     
     // Create a search request
@@ -99,7 +105,7 @@ async function searchCoffeeShops(location) {
                     
                     if (isCoffeeShop) {
                         console.log('Adding coffee shop:', place.name);
-                        addCoffeeShopMarker(place);
+                        addCoffeeShopMarker(map, place);
                     } else {
                         console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
                     }
@@ -133,47 +139,44 @@ async function searchCoffeeShops(location) {
 }
 
 // Add a marker for a coffee shop
-function addCoffeeShopMarker(place) {
+function addCoffeeShopMarker(map, place) {
     console.log('Creating marker for:', place.name);
     console.log('Place location:', place.geometry.location);
     
-    try {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-            position: place.geometry.location,
-            map: map,
-            title: place.name,
-            content: createCoffeeShopMarkerContent()
-        });
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: place.geometry.location,
+        title: place.name,
+        content: createCoffeeShopMarkerContent()
+    });
 
-        console.log('Marker created successfully');
+    console.log('Marker created successfully');
 
-        // Create info window
-        const infoWindow = new google.maps.InfoWindow({
-            content: `
-                <div style="padding: 8px;">
-                    <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
-                    <p style="margin: 0 0 4px 0;">${place.vicinity}</p>
-                    ${place.rating ? `<p style="margin: 0 0 4px 0;">Rating: ${place.rating} ⭐</p>` : ''}
-                    ${place.opening_hours ? `<p style="margin: 0 0 4px 0;">${place.opening_hours.isOpen() ? 'Open now' : 'Closed'}</p>` : ''}
-                </div>
-            `
-        });
+    // Create info window
+    const infoWindow = new google.maps.InfoWindow({
+        content: `
+            <div style="padding: 8px;">
+                <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
+                <p style="margin: 0 0 4px 0;">${place.vicinity}</p>
+                ${place.rating ? `<p style="margin: 0 0 4px 0;">Rating: ${place.rating} ⭐</p>` : ''}
+                ${place.opening_hours ? `<p style="margin: 0;">${place.opening_hours.isOpen() ? '🟢 Open' : '🔴 Closed'}</p>` : ''}
+            </div>
+        `
+    });
 
-        // Add click listener to show info window
-        marker.element.addEventListener('click', () => {
-            infoWindow.open(map, marker);
-        });
+    // Add click event listener
+    marker.element.addEventListener('gmp-click', () => {
+        infoWindow.open(map, marker);
+    });
 
-        // Close info window when clicking elsewhere on the map
-        map.addListener('click', () => {
-            infoWindow.close();
-        });
+    // Close info window when clicking on the map
+    map.addListener('click', () => {
+        infoWindow.close();
+    });
 
-        coffeeShops.push(marker);
-        console.log('Marker added for:', place.name);
-    } catch (error) {
-        console.error('Error creating marker:', error);
-    }
+    coffeeShops.push(marker);
+    console.log('Marker added for:', place.name);
+    return marker;
 }
 
 // Create coffee shop marker content
