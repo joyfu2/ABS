@@ -90,8 +90,31 @@ function searchCoffeeShops(location) {
 
     placesService.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log('Found places:', results.length);
-            coffeeShops = results;
+            // Filter results to ensure they are coffee shops
+            const coffeeShops = results.filter(place => {
+                const name = place.name.toLowerCase();
+                return (
+                    // Include places with coffee-related terms in name
+                    name.includes('coffee') ||
+                    name.includes('café') ||
+                    name.includes('cafe') ||
+                    name.includes('espresso') ||
+                    name.includes('latte') ||
+                    name.includes('roaster') ||
+                    name.includes('roastery') ||
+                    // Include major coffee chains
+                    name.includes('starbucks') ||
+                    name.includes('dunkin') ||
+                    name.includes('peets') ||
+                    name.includes('gregorys') ||
+                    name.includes('joe coffee') ||
+                    name.includes('la colombe') ||
+                    name.includes('blue bottle')
+                );
+            });
+
+            console.log('Found coffee shops:', coffeeShops.length);
+            window.coffeeShops = coffeeShops;
             addCoffeeShopMarkers();
         } else {
             console.error('Places search failed:', status);
