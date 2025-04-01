@@ -181,7 +181,7 @@ function addCoffeeShopMarker(map, place) {
     });
 
     // Add click event listener
-    marker.element.addEventListener('gmp-click', () => {
+    marker.element.addEventListener('click', () => {
         infoWindow.open(map, marker);
         map.setCenter(marker.position);
     });
