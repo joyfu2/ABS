@@ -54,6 +54,76 @@ function initializeMap() {
                 featureType: 'poi.sports_complex',
                 elementType: 'all',
                 stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.medical',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.park',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.landmark',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.point_of_interest',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.transit',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.establishment',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.natural_feature',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.cemetery',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.campground',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.parking',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.airport',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.train_station',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.bus_station',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.subway_station',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
             }
         ]
     });
