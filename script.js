@@ -10,7 +10,7 @@ let coffeeShops = [];
 let placesService;
 
 // Initialize the map
-window.initializeMap = function() {
+function initializeMap() {
     // Show loading indicator
     document.getElementById('loading').style.display = 'block';
 
@@ -57,7 +57,7 @@ window.initializeMap = function() {
         addUserMarker(DEFAULT_LOCATION);
         searchCoffeeShops(DEFAULT_LOCATION);
     }
-};
+}
 
 // Add user marker to map
 function addUserMarker(location) {
