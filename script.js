@@ -20,8 +20,11 @@ window.initializeMap = function() {
                 map = new google.maps.Map(document.getElementById('map'), {
                     center: userLocation,
                     zoom: 13,
-                    mapId: MAP_ID
+                    mapId: MAP_ID,
+                    styles: [] // Use default Google Maps styling
                 });
+
+                console.log('Map initialized successfully');
 
                 // Add user marker with Advanced Marker
                 userMarker = new google.maps.marker.AdvancedMarkerElement({
@@ -30,6 +33,8 @@ window.initializeMap = function() {
                     title: 'Your Location',
                     content: createUserMarkerContent()
                 });
+
+                console.log('User marker created');
 
                 // Search for coffee shops
                 searchCoffeeShops(userLocation);
@@ -63,7 +68,7 @@ function searchCoffeeShops(location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: ['cafe', 'restaurant'],
+        type: ['cafe'],
         keyword: 'coffee'
     };
 
@@ -81,23 +86,23 @@ function searchCoffeeShops(location) {
             
             // Filter and add markers for coffee shops
             results.forEach(place => {
-                console.log('Checking place:', place.name, 'Types:', place.types);
+                console.log('Checking place:', place.name);
+                console.log('Place types:', place.types);
                 
                 // Check if it's a coffee shop based on name and types
+                const name = place.name.toLowerCase();
                 const isCoffeeShop = 
-                    place.name.toLowerCase().includes('coffee') ||
-                    place.name.toLowerCase().includes('café') ||
-                    place.name.toLowerCase().includes('cafe') ||
-                    place.name.toLowerCase().includes('espresso') ||
-                    place.name.toLowerCase().includes('latte') ||
-                    place.types.includes('cafe') ||
-                    (place.types.includes('restaurant') && place.name.toLowerCase().includes('coffee'));
+                    (name.includes('coffee') && place.types.includes('cafe')) ||
+                    (name.includes('café') && place.types.includes('cafe')) ||
+                    (name.includes('cafe') && place.types.includes('cafe')) ||
+                    (name.includes('espresso') && place.types.includes('cafe')) ||
+                    (name.includes('latte') && place.types.includes('cafe'));
                 
                 if (isCoffeeShop) {
                     console.log('Adding coffee shop:', place.name);
                     addCoffeeShopMarker(place);
                 } else {
-                    console.log('Skipping non-coffee shop:', place.name);
+                    console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
                 }
             });
         } else {
@@ -127,29 +132,36 @@ function searchCoffeeShops(location) {
 // Add a marker for a coffee shop
 function addCoffeeShopMarker(place) {
     console.log('Creating marker for:', place.name);
+    console.log('Place location:', place.geometry.location);
     
-    const marker = new google.maps.marker.AdvancedMarkerElement({
-        position: place.geometry.location,
-        map: map,
-        title: place.name,
-        content: createCoffeeShopMarkerContent()
-    });
-
-    // Add click listener to show info window
-    marker.addEventListener('gmp-click', () => {
-        const infoWindow = new google.maps.InfoWindow({
-            content: `
-                <div style="padding: 8px;">
-                    <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
-                    <p style="margin: 0;">${place.vicinity}</p>
-                </div>
-            `
+    try {
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+            position: place.geometry.location,
+            map: map,
+            title: place.name,
+            content: createCoffeeShopMarkerContent()
         });
-        infoWindow.open(map, marker);
-    });
 
-    coffeeShops.push(marker);
-    console.log('Marker added for:', place.name);
+        console.log('Marker created successfully');
+
+        // Add click listener to show info window
+        marker.addEventListener('gmp-click', () => {
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="padding: 8px;">
+                        <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
+                        <p style="margin: 0;">${place.vicinity}</p>
+                    </div>
+                `
+            });
+            infoWindow.open(map, marker);
+        });
+
+        coffeeShops.push(marker);
+        console.log('Marker added for:', place.name);
+    } catch (error) {
+        console.error('Error creating marker:', error);
+    }
 }
 
 // Create coffee shop marker content
