@@ -31,6 +31,16 @@ function initializeMap() {
                 stylers: [{ visibility: 'off' }]
             },
             {
+                featureType: 'poi.attraction',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.government',
+                elementType: 'all',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
                 featureType: 'poi.place_of_worship',
                 elementType: 'all',
                 stylers: [{ visibility: 'off' }]
@@ -41,27 +51,7 @@ function initializeMap() {
                 stylers: [{ visibility: 'off' }]
             },
             {
-                featureType: 'poi.medical',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.park',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.attraction',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.landmark',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.point_of_interest',
+                featureType: 'poi.sports_complex',
                 elementType: 'all',
                 stylers: [{ visibility: 'off' }]
             }
