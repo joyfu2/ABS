@@ -19,44 +19,15 @@ function initializeMap() {
         center: DEFAULT_LOCATION,
         zoom: 13,
         mapId: '8e0a97af9386fef',
-        styles: [
-            {
-                featureType: 'poi',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.business',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.park',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.attraction',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.government',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.place_of_worship',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.school',
-                stylers: [{ visibility: 'off' }]
-            },
-            {
-                featureType: 'poi.sports_complex',
-                stylers: [{ visibility: 'off' }]
-            }
-        ]
+        disableDefaultUI: true,
+        zoomControl: true,
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        gestureHandling: 'greedy',
+        clickableIcons: false,
+        mapTypeId: 'roadmap'
     });
-
-    // Verify styles are applied
-    console.log('Map styles:', map.get('styles'));
 
     // Initialize PlacesService
     placesService = new google.maps.places.PlacesService(map);
@@ -120,7 +91,8 @@ function searchCoffeeShops(location) {
         location: location,
         radius: RADIUS,
         type: 'cafe',
-        keyword: 'coffee cafe espresso'
+        keyword: 'coffee cafe espresso',
+        rankBy: google.maps.places.RankBy.DISTANCE
     };
 
     console.log('Search request:', request);
