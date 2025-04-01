@@ -19,8 +19,7 @@ window.initializeMap = function() {
                 // Create map centered on user's location
                 map = new google.maps.Map(document.getElementById('map'), {
                     center: userLocation,
-                    zoom: 13,
-                    mapId: MAP_ID
+                    zoom: 13
                 });
 
                 console.log('Map initialized successfully');
@@ -148,17 +147,26 @@ function addCoffeeShopMarker(place) {
 
         console.log('Marker created successfully');
 
+        // Create info window
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="padding: 8px;">
+                    <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
+                    <p style="margin: 0 0 4px 0;">${place.vicinity}</p>
+                    ${place.rating ? `<p style="margin: 0 0 4px 0;">Rating: ${place.rating} ⭐</p>` : ''}
+                    ${place.opening_hours ? `<p style="margin: 0 0 4px 0;">${place.opening_hours.isOpen() ? 'Open now' : 'Closed'}</p>` : ''}
+                </div>
+            `
+        });
+
         // Add click listener to show info window
         marker.addEventListener('gmp-click', () => {
-            const infoWindow = new google.maps.InfoWindow({
-                content: `
-                    <div style="padding: 8px;">
-                        <h3 style="margin: 0 0 8px 0;">${place.name}</h3>
-                        <p style="margin: 0;">${place.vicinity}</p>
-                    </div>
-                `
-            });
             infoWindow.open(map, marker);
+        });
+
+        // Close info window when clicking elsewhere on the map
+        map.addListener('click', () => {
+            infoWindow.close();
         });
 
         coffeeShops.push(marker);
