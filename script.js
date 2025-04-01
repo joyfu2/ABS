@@ -93,24 +93,33 @@ function searchCoffeeShops(location) {
             // Filter results to ensure they are coffee shops
             const coffeeShops = results.filter(place => {
                 const name = place.name.toLowerCase();
-                return (
-                    // Include places with coffee-related terms in name
-                    name.includes('coffee') ||
-                    name.includes('café') ||
-                    name.includes('cafe') ||
-                    name.includes('espresso') ||
-                    name.includes('latte') ||
-                    name.includes('roaster') ||
-                    name.includes('roastery') ||
-                    // Include major coffee chains
-                    name.includes('starbucks') ||
-                    name.includes('dunkin') ||
-                    name.includes('peets') ||
-                    name.includes('gregorys') ||
-                    name.includes('joe coffee') ||
-                    name.includes('la colombe') ||
-                    name.includes('blue bottle')
-                );
+                const types = place.types || [];
+                
+                // First check if it's a coffee shop by business type
+                const isCoffeeShopType = types.includes('cafe') || 
+                                       types.includes('restaurant') ||
+                                       types.includes('food');
+                
+                // Then check if it has coffee-related terms in the name
+                const hasCoffeeTerms = name.includes('coffee') ||
+                                     name.includes('café') ||
+                                     name.includes('cafe') ||
+                                     name.includes('espresso') ||
+                                     name.includes('latte') ||
+                                     name.includes('roaster') ||
+                                     name.includes('roastery');
+                
+                // Check for major coffee chains
+                const isCoffeeChain = name.includes('starbucks') ||
+                                    name.includes('dunkin') ||
+                                    name.includes('peets') ||
+                                    name.includes('gregorys') ||
+                                    name.includes('joe coffee') ||
+                                    name.includes('la colombe') ||
+                                    name.includes('blue bottle');
+                
+                // Only include if it's both a coffee shop type AND has coffee terms or is a known chain
+                return isCoffeeShopType && (hasCoffeeTerms || isCoffeeChain);
             });
 
             console.log('Found coffee shops:', coffeeShops.length);
