@@ -2,6 +2,7 @@ let map;
 let userMarker;
 let coffeeShops = [];
 const RADIUS = 5000; // 5km radius
+const MAP_ID = 'YOUR_MAP_ID'; // Replace with your actual Map ID
 
 // Initialize the map
 window.initializeMap = function() {
@@ -18,7 +19,8 @@ window.initializeMap = function() {
                 // Create map centered on user's location
                 map = new google.maps.Map(document.getElementById('map'), {
                     center: userLocation,
-                    zoom: 13
+                    zoom: 13,
+                    mapId: MAP_ID
                 });
 
                 // Add user marker with Advanced Marker
