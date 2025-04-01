@@ -63,7 +63,8 @@ function searchCoffeeShops(location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: 'cafe'
+        type: ['cafe', 'restaurant'],
+        keyword: 'coffee'
     };
 
     console.log('Search request:', request);
@@ -80,11 +81,23 @@ function searchCoffeeShops(location) {
             
             // Filter and add markers for coffee shops
             results.forEach(place => {
-                console.log('Checking place:', place.name);
-                if (place.name.toLowerCase().includes('coffee') || 
-                    place.types.includes('cafe')) {
+                console.log('Checking place:', place.name, 'Types:', place.types);
+                
+                // Check if it's a coffee shop based on name and types
+                const isCoffeeShop = 
+                    place.name.toLowerCase().includes('coffee') ||
+                    place.name.toLowerCase().includes('café') ||
+                    place.name.toLowerCase().includes('cafe') ||
+                    place.name.toLowerCase().includes('espresso') ||
+                    place.name.toLowerCase().includes('latte') ||
+                    place.types.includes('cafe') ||
+                    (place.types.includes('restaurant') && place.name.toLowerCase().includes('coffee'));
+                
+                if (isCoffeeShop) {
                     console.log('Adding coffee shop:', place.name);
                     addCoffeeShopMarker(place);
+                } else {
+                    console.log('Skipping non-coffee shop:', place.name);
                 }
             });
         } else {
