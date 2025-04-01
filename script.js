@@ -163,6 +163,7 @@ function addCoffeeShopMarker(map, place) {
     // Add click event listener
     marker.addListener('click', () => {
         infoWindow.open(map, marker);
+        map.setCenter(marker.getPosition());
     });
 
     // Close info window when clicking on the map
