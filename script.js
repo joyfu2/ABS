@@ -7,6 +7,7 @@ let map;
 let userMarker;
 let infoWindow;
 let coffeeShops = [];
+let placesService;
 
 // Initialize the map
 window.initializeMap = function() {
@@ -19,6 +20,9 @@ window.initializeMap = function() {
         zoom: 13,
         mapId: '8e0a97af9386fef'
     });
+
+    // Initialize PlacesService
+    placesService = new google.maps.places.PlacesService(map);
 
     // Get user's location
     if (navigator.geolocation) {
@@ -72,16 +76,22 @@ function createUserMarkerContent() {
 }
 
 // Search for coffee shops
-async function searchCoffeeShops(location) {
+function searchCoffeeShops(location) {
     console.log('Starting coffee shop search...');
     
-    try {
-        const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.lat},${location.lng}&radius=${RADIUS}&type=cafe&keyword=coffee cafe espresso&key=AIzaSyBQ-EJ3QVD06l_bsCxNAZHLTKCkEonm4Cg`);
-        const data = await response.json();
+    const request = {
+        location: location,
+        radius: RADIUS,
+        type: 'cafe',
+        keyword: 'coffee cafe espresso'
+    };
 
-        if (data.status === 'OK') {
+    console.log('Search request:', request);
+
+    placesService.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
             // Filter results to ensure they are coffee shops
-            const filteredShops = data.results.filter(place => {
+            const filteredShops = results.filter(place => {
                 const name = place.name.toLowerCase();
                 const types = place.types || [];
                 
@@ -116,16 +126,13 @@ async function searchCoffeeShops(location) {
             window.coffeeShops = filteredShops;
             addCoffeeShopMarkers();
         } else {
-            console.error('Places search failed:', data.status);
+            console.error('Places search failed:', status);
             showError('Error finding coffee shops. Please try again later.');
         }
-    } catch (error) {
-        console.error('Error searching for coffee shops:', error);
-        showError('Error finding coffee shops. Please try again later.');
-    }
-    
-    // Hide loading indicator
-    document.getElementById('loading').style.display = 'none';
+        
+        // Hide loading indicator
+        document.getElementById('loading').style.display = 'none';
+    });
 }
 
 // Add coffee shop markers to map
@@ -134,8 +141,8 @@ function addCoffeeShopMarkers() {
     if (window.coffeeShops) {
         window.coffeeShops.forEach(place => {
             const position = {
-                lat: place.geometry.location.lat,
-                lng: place.geometry.location.lng
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng()
             };
             
             console.log('Adding marker for:', place.name, 'at position:', position);
@@ -174,7 +181,7 @@ function showInfoWindow(place, marker) {
             <h3 style="margin: 0 0 10px 0;">${place.name}</h3>
             ${place.vicinity ? `<p style="margin: 0 0 10px 0;">${place.vicinity}</p>` : ''}
             ${place.rating ? `<p style="margin: 0 0 10px 0;">Rating: ${place.rating} ⭐</p>` : ''}
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat},${place.geometry.location.lng}" 
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${place.geometry.location.lat()},${place.geometry.location.lng()}" 
                target="_blank" 
                style="display: inline-block; padding: 8px 16px; background-color: #4285F4; color: white; text-decoration: none; border-radius: 4px;">
                 Get Directions
