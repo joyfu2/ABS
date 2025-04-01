@@ -160,7 +160,7 @@ function addCoffeeShopMarker(place) {
         });
 
         // Add click listener to show info window
-        marker.addEventListener('gmp-click', () => {
+        marker.element.addEventListener('click', () => {
             infoWindow.open(map, marker);
         });
 
