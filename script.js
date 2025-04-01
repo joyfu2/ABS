@@ -18,7 +18,34 @@ function initializeMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: DEFAULT_LOCATION,
         zoom: 13,
-        mapId: '8e0a97af9386fef'
+        mapId: '8e0a97af9386fef',
+        styles: [
+            {
+                featureType: 'poi',
+                elementType: 'labels',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.business',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.place_of_worship',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.school',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.medical',
+                stylers: [{ visibility: 'off' }]
+            },
+            {
+                featureType: 'poi.park',
+                stylers: [{ visibility: 'off' }]
+            }
+        ]
     });
 
     // Initialize PlacesService
