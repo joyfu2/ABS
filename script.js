@@ -20,8 +20,7 @@ window.initializeMap = function() {
                 map = new google.maps.Map(document.getElementById('map'), {
                     center: userLocation,
                     zoom: 13,
-                    mapId: MAP_ID,
-                    styles: [] // Use default Google Maps styling
+                    mapId: MAP_ID
                 });
 
                 console.log('Map initialized successfully');
@@ -68,62 +67,66 @@ async function searchCoffeeShops(location) {
     const request = {
         location: location,
         radius: RADIUS,
-        type: ['cafe'],
+        type: 'cafe',
         keyword: 'coffee'
     };
 
     console.log('Search request:', request);
 
     try {
-        // Use the new Place API
-        const response = await google.maps.places.Place.search(request);
-        console.log('Search status:', response.status);
-        
-        if (response.status === 'OK') {
-            console.log('Found places:', response.results.length);
+        // Create a PlacesService instance
+        const service = new google.maps.places.PlacesService(map);
+
+        // Perform the search
+        service.nearbySearch(request, (results, status) => {
+            console.log('Search status:', status);
             
-            // Filter and add markers for coffee shops
-            response.results.forEach(place => {
-                console.log('Checking place:', place.name);
-                console.log('Place types:', place.types);
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                console.log('Found places:', results.length);
                 
-                // Check if it's a coffee shop based on name and types
-                const name = place.name.toLowerCase();
-                const isCoffeeShop = 
-                    (name.includes('coffee') && place.types.includes('cafe')) ||
-                    (name.includes('café') && place.types.includes('cafe')) ||
-                    (name.includes('cafe') && place.types.includes('cafe')) ||
-                    (name.includes('espresso') && place.types.includes('cafe')) ||
-                    (name.includes('latte') && place.types.includes('cafe'));
+                // Filter and add markers for coffee shops
+                results.forEach(place => {
+                    console.log('Checking place:', place.name);
+                    console.log('Place types:', place.types);
+                    
+                    // Check if it's a coffee shop based on name and types
+                    const name = place.name.toLowerCase();
+                    const isCoffeeShop = 
+                        (name.includes('coffee') && place.types.includes('cafe')) ||
+                        (name.includes('café') && place.types.includes('cafe')) ||
+                        (name.includes('cafe') && place.types.includes('cafe')) ||
+                        (name.includes('espresso') && place.types.includes('cafe')) ||
+                        (name.includes('latte') && place.types.includes('cafe'));
+                    
+                    if (isCoffeeShop) {
+                        console.log('Adding coffee shop:', place.name);
+                        addCoffeeShopMarker(place);
+                    } else {
+                        console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
+                    }
+                });
+            } else {
+                console.error('Places search failed:', status);
+                let errorMessage = 'Error searching for coffee shops. ';
                 
-                if (isCoffeeShop) {
-                    console.log('Adding coffee shop:', place.name);
-                    addCoffeeShopMarker(place);
-                } else {
-                    console.log('Skipping non-coffee shop:', place.name, 'Reason: Does not match coffee shop criteria');
+                switch(status) {
+                    case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
+                        errorMessage += 'Too many requests. Please try again later.';
+                        break;
+                    case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
+                        errorMessage += 'Request denied. Please check your API key and billing status.';
+                        break;
+                    case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
+                        errorMessage += 'Invalid request. Please try again.';
+                        break;
+                    default:
+                        errorMessage += 'Please try again later.';
                 }
-            });
-        } else {
-            console.error('Places search failed:', response.status);
-            let errorMessage = 'Error searching for coffee shops. ';
-            
-            switch(response.status) {
-                case 'OVER_QUERY_LIMIT':
-                    errorMessage += 'Too many requests. Please try again later.';
-                    break;
-                case 'REQUEST_DENIED':
-                    errorMessage += 'Request denied. Please check your API key and billing status.';
-                    break;
-                case 'INVALID_REQUEST':
-                    errorMessage += 'Invalid request. Please try again.';
-                    break;
-                default:
-                    errorMessage += 'Please try again later.';
+                
+                console.error(errorMessage);
+                alert(errorMessage);
             }
-            
-            console.error(errorMessage);
-            alert(errorMessage);
-        }
+        });
     } catch (error) {
         console.error('Error during places search:', error);
         alert('Error searching for coffee shops. Please try again later.');
